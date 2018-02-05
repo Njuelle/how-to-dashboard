@@ -3,9 +3,9 @@
 
 ## 1- Docker compose and configurations file
 
-First we have to write a docker-compose file (in yaml) to launch a stack with Kuzzle, Elastic-search and kibana. So, create a file called `docker-compose.yml`.
+First we have to write a docker-compose file (in yaml) to launch a stack with Kuzzle, Elastic-search and Kibana. So, create a file called `docker-compose.yml`.
 
-At first we have to add some services, we need Kuzzle, Redis and Elastic-search :
+At first we have to add some services in this file, we need Kuzzle, Redis and Elastic-search :
 
 ```yaml
 version: '2'
@@ -55,7 +55,7 @@ kibana:
       - 5601:5601
 ```
 
-If you are an observer you see there is a volume mounted for configuring Kibana. What we need now is to create a file `kibana.yml` and add some lines :
+If you are an observer you see there is a volume mounted for configuring Kibana. What we need now is to create a file `kibana.yml` and put some lines in it :
 
 ```yaml
 server.name: kibana
@@ -80,7 +80,7 @@ Before create graphs with kibana, we have to add some datas to Kuzzle. Kuzzle da
 First we need to create an index in Kuzzle, for doing that, simply run this command in a new tab in your terminal :
 
 ```bash
-$ curl -X PUT http://localhost:7512myAwesomeIndex/_create
+$ curl -X PUT http://localhost:7512/myAwesomeIndex/_create
 ```
 You just created a new index called 'myAwesomeIndex'. But this index seems to be a bit alone, he need a collection to be really awesome.
 
