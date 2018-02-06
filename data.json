@@ -2,17 +2,82 @@
     "documents": [
         {
             "body": {
-                "value": 42
+                "temperature": 22.526405,
+                "light_level": 17.200005,
+                "relative_humidity": 42.624298,
+                "date": "2018-01-01" 
             }
         },
         {
             "body": {
-                "value": 42
+                "temperature": 21.846886,
+                "light_level": 15.200001,
+                "relative_humidity": 43.021027,
+                "date": "2018-01-02"
             }
         },
         {
             "body": {
-                "value": 42
+                "temperature": 21.846886,
+                "light_level": 15.200001,
+                "relative_humidity": 46.021027,
+                "date": "2018-01-03"
+            }
+        },
+        {
+            "body": {
+                "temperature": 21.836098,
+                "light_level": 15.200001,
+                "relative_humidity": 46.028656,
+                "date": "2018-01-04"
+            }
+        },
+        {
+            "body": {
+                "temperature": 21.836098,
+                "light_level": 15.200001,
+                "relative_humidity": 47.028656,
+                "date": "2018-01-05"
+            }
+        },
+        {
+            "body": {
+                "temperature": 21.836098,
+                "light_level": 15.200001,
+                "relative_humidity": 45.028452,
+                "date": "2018-01-06"
+            }
+        },
+        {
+            "body": {
+                "temperature": 20.842378,
+                "light_level": 16.200001,
+                "relative_humidity": 43.045751,
+                "date": "2018-01-07"
+            }
+        },
+        {
+            "body": {
+                "temperature": 21.836098,
+                "light_level": 15.200001,
+                "relative_humidity": 46.028656,
+                "date": "2018-01-08"
+            }
+        },
+        {
+            "body": {
+                "temperature": 20.836098,
+                "light_level": 15.126010,
+                "relative_humidity": 44.028656,
+                "date": "2018-01-09"
+            }
+        },
+        {
+            "body": {
+                "temperature": 22.836098,
+                "light_level": 17.200001,
+                "relative_humidity": 43.028656,
+                "date": "2018-01-10"
             }
         }
     ]

@@ -101,19 +101,38 @@ The file you just imported contain sample data from IoT sensor, we have temperat
 
 Now it's time to go to Kibana console for some configurations ! Browse http://localhost:5601 and you will arrive to the management page of Kibana.
 
-Having data is cool but having data over the time for making visualizations is better.
-Lucky we are, Kuzzle store timestamp in metafields of documents, but we have to tel Kibana what field is metafield.
-Click on "Advanced Settings" and find the "metaFields" input, click on the edit button on the right and add "_kuzzle_info.createdAt", click on the save button and that's all !
 
-![Kibana-advanced-settings](img/kibana1.png)
+We have to give to Kibana the index name we just created in Kuzzle. Type 'myawesomeindex' in the input text. Kibana will automatically find the time based field. Click on "Create" button.
 
-We have to give to Kibana the index name we just created in Kuzzle. Click on "Index Patterns" and type 'myawesomeindex' in the text field. Kibana will automatically find the time based field we just added in settings. Click on "Create" button
+![Kibana-index-pattern](img/kibana1.png)
 
-![Kibana-index-pattern](img/kibana2.png)
+Kibana will parse every searchable or aggreagatable fields and show you these fields. 
 
-Kibana will parse every searchable field and show you these fields. We just finishing configuring.
+We just finishing configuring.
 
 ## 3- Create visualizations and dashboard
 
-It's the fun part of this tutorial and that's why you are here ! We will create 3 graphs with the datas previously added in Kuzzle, ready? let's go!
+It's the fun part of this tutorial and that's why you are here ! We will create one graph with the datas previously added in Kuzzle, ready? let's go!
+
+Click on "Visualize" button on left menu and click on "Create a visualization".
+
+Our first graph will be a bar graph of humidity variation, so choose "Vertical Bar" and choose your index by clicking on "myawesomeindex".
+
+Kibana is a great tool for visualizing data in real time, but in this tutorial, for easy comprehension we use an extract of a big JSON dump with a date field. First thing to do is to select a time period. Click on time range button on the top right corner (by default it's set to "Last 15 minutes"), now click on "Absolute" and choose a range in the dates pickers. The JSON dump we use start to 01-01-2018 and end to 01-10-2018, so pick these dates and validate.
+
+![Kibana-time-range](img/kibana2.png)
+
+We need to configure our graph, first, the Y axis :
+Unfold the "Y-axis" menu and we have to choose an aggregation, select "Average" in the dropdown menu. Next we have to choose the field we want to aggregate. Like I said, we build a graph about relative humidity, so select this field. It's possible to enter a custom label to embellish our graph, do not deprive us and type "Humidity" in the the text box meant for that purpose.
+
+![Kibana-y-axis](img/kibana3.png)
+
+It's time to configure the X axis, we want to sort our humidity data by date.
+Click on the "X-Axis" button and select "Date Histogram". Kibana automatically select the date field but we have to choose an interval, pick a daily interval in the dropdown menu. And like previously type a custom label, for exemple "Date".
+
+![Kibana-x-axis](img/kibana4.png)
+
+Now click on the "Apply change" button ![Kibana-apply-button](img/kibana-apply-button.png) to see our beautiful graph.
+
+![Kibana-bar-graph](img/kibana5.png)
 
