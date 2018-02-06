@@ -73,29 +73,47 @@ If everything is correct you can see all logs for all services running. You can 
 
 Your stack is ready and we can go to Kibana console for create amazing visualizations !
 
-## 2- Configuring Kibana
+## 2- Configuring Kibana and Kuzzle
 
 Before create graphs with kibana, we have to add some datas to Kuzzle. Kuzzle database is based on JSON document collections. 
 
 First we need to create an index in Kuzzle, for doing that, simply run this command in a new tab in your terminal :
 
 ```bash
-$ curl -X PUT http://localhost:7512/myAwesomeIndex/_create
+$ curl -X POST http://localhost:7512/myawesomeindex/_create
 ```
-You just created a new index called 'myAwesomeIndex'. But this index seems to be a bit alone, he need a collection to be really awesome.
+You just created a new index called 'myawesomeindex'. But this index seems to be a bit alone, he need a collection to be really awesome.
 
 Always in your terminal create a collection by running this command :
 
 ```bash
-$ curl -X PUT http://localhost:7512/myAwesomeIndex/myWonderfulCollection
+$ curl -X PUT http://localhost:7512/myawesomeindex/myGreatfCollection
 ```
 
+Now we have a collection but we need documents to visualize, for follow this tutorial, you can download this JSON sample data [here] and import it to Kuzzle.
 
+```bash
+$ curl http://localhost:7512/myawesomeindex/mygreatcollection/_create -d @data.json \
+--header "Content-Type: application/json"
+```
 
-4) add '_kuzzle_info' metafields
+The file you just imported contain sample data from IoT sensor, we have temperature, light level and humidity percents.
 
-5) create scripted fields
+Now it's time to go to Kibana console for some configurations ! Browse http://localhost:5601 and you will arrive to the management page of Kibana.
 
-6) create visualizations
+Having data is cool but having data over the time for making visualizations is better.
+Lucky we are, Kuzzle store timestamp in metafields of documents, but we have to tel Kibana what field is metafield.
+Click on "Advanced Settings" and find the "metaFields" input, click on the edit button on the right and add "_kuzzle_info.createdAt", click on the save button and that's all !
 
-7) create dashboard
+![Kibana-advanced-settings](img/kibana1.png)
+
+We have to give to Kibana the index name we just created in Kuzzle. Click on "Index Patterns" and type 'myawesomeindex' in the text field. Kibana will automatically find the time based field we just added in settings. Click on "Create" button
+
+![Kibana-index-pattern](img/kibana2.png)
+
+Kibana will parse every searchable field and show you these fields. We just finishing configuring.
+
+## 3- Create visualizations and dashboard
+
+It's the fun part of this tutorial and that's why you are here ! We will create 3 graphs with the datas previously added in Kuzzle, ready? let's go!
+

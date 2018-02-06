@@ -1,0 +1,19 @@
+{
+    "documents": [
+        {
+            "body": {
+                "value": 42
+            }
+        },
+        {
+            "body": {
+                "value": 42
+            }
+        },
+        {
+            "body": {
+                "value": 42
+            }
+        }
+    ]
+}
