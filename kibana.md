@@ -1,6 +1,10 @@
 # How to a create dashboard with Kuzzle and Kibana
 
+![Kibana-full-dashboard](img/full-dashboard.png)
+
 Having tons of datas is cool but visualizing them and make them say something is better, that's why I decide to wrote a tutorial about how to dashboard with Kuzzle and Kibana.
+
+![Kuzzle](img/kuzzle.png) ![Kibana](img/kibana.png)
 
 Kuzzle is an open-source self-hostable backend, ready to use for power web, mobile and IoT applications. Allows you to drastically reduce your developpement time and give you tools for real-time datas management, geofencing and others extras features.
 
@@ -175,5 +179,7 @@ Like Kibana said, "This dashboard is empty. Let's fill it up!" so click on the "
 
 Choose the visualization we just created and it will be added to our dashboard! Here we are, we have a dashboard with a beautiful graph showing detected motions of our IoT board over a time period!
 
-Feel free to play and experiment by yourself with our datas to add anothers graph on this dashboard :)
+Kibana give you the possibility to share your dashboard, with an URL that you can send to people or directly in a web page with an iframe
+
+Feel free to play and experiment by yourself with our datas to add anothers graph on this dashboard :-)
 
