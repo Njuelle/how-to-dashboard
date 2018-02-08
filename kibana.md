@@ -173,7 +173,7 @@ Like Kibana said, "This dashboard is empty. Let's fill it up!" so click on the "
 
 ![Kibana-add-to-dashboard](img/kibana7.png)
 
-Choose the visualization we just created and it will be added to our dashboard! Here we are, we have a dashboard with a beautiful graph showing detected motions over a time period!
+Choose the visualization we just created and it will be added to our dashboard! Here we are, we have a dashboard with a beautiful graph showing detected motions of our IoT board over a time period!
 
 Feel free to play and experiment by yourself with our datas to add anothers graph on this dashboard :)
 
