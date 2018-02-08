@@ -75,7 +75,6 @@ If you are an observer you see there is a volume mounted for configuring Kibana.
 server.name: kibana
 server.host: "0"
 elasticsearch.url: http://elasticsearch:9200
-xpack.monitoring.ui.container.elasticsearch.enabled: true
 ```
 
 Now you can run this docker-compose file in your favorite terminal
