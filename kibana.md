@@ -151,7 +151,7 @@ Click on "Visualize" button on left menu and click on "Create a visualization".
 
 Our first graph will be a bar graph of detected motions, so choose "Vertical Bar" and choose your index by clicking on "iot".
 
-Kibana is a great tool for visualizing data in real time, but in this tutorial, for easy comprehension we use just an extract of our IoT sensor datas on fews days. First thing to do is to select a time period. Click on time range button on the top right corner (by default it's set to "Last 15 minutes"), now click on "Absolute" and choose a range in the dates pickers. The JSON dump we use start to 02-05-2018 and end to 02-07-2018, so pick these dates and validate.
+Kibana is a great tool for visualizing data in real time, but in this tutorial, for easy comprehension we use just an extract of our IoT sensor datas on fews days. First thing to do is to select a time period. Click on time range button on the top right corner (by default it's set to "Last 15 minutes"), now click on "Absolute" and choose a range in the dates pickers. The dump we use start to 02-05-2018 and end to 02-07-2018, so pick these dates and validate.
 
 ![Kibana-time-range](img/kibana2.png)
 
