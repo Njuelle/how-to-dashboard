@@ -1,11 +1,21 @@
 # How to a create dashboard with Kuzzle and Kibana
 
+Having tons of datas is cool but visualizing them and make them say something is better, that's why I decide to wrote a tutorial about how to dashboard with Kuzzle and Kibana.
+
+Kuzzle is an open-source self-hostable backend, ready to use for power web, mobile and IoT applications. Allows you to drastically reduce your developpement time and give you tools for real-time datas management, geofencing and others extras features.
+
+Today, we are here for making a beautiful dashboard about IoT datas collected through a board installed in our office. This board, for demonstrating and testing, capture light level, humidity, temperature and detected motions. It's a great use case for a tutorial and I decide to create an elastic-search docker image with all our datas for making easier to follow this tutorial.
+
+After reading this article, we will have a dashboard who show you detected motions over the time.
+
+Before start, to continue you should install docker and docker-compose.
+
 
 ## 1- Docker compose and configurations file
 
 First we have to write a docker-compose file (in yaml) to launch a stack with Kuzzle, Elastic-search and Kibana. So, create a file called `docker-compose.yml`.
 
-At first we have to add some services in this file, we need Kuzzle, Redis and Elastic-search :
+For beggining we have to add some services in this file, we need Kuzzle, Redis and Elastic-search :
 
 ```yaml
 version: '2'
@@ -30,7 +40,7 @@ services:
     image: redis:3.2
 
   elasticsearch:
-    image: kuzzleio/elasticsearch:5.4.1
+    image: njuelle/es-tuto-kuzzle-kibana
     environment:
       - cluster.name=kuzzle
       - xpack.security.enabled=false
@@ -69,70 +79,101 @@ Now you can run this docker-compose file in your favorite terminal
 ```bash
 $ docker-compose up
 ```
-If everything is correct you can see all logs for all services running. You can check if kuzzle is running correctly by browsing http://localhost:7512?pretty=true, Kuzzle will respond you with a list of the existing routes.
+If everything is correct you can see all logs for all services running. You can check if kuzzle is working correctly by browsing http://localhost:7512?pretty=true, Kuzzle will respond you with a list of the existing routes.
 
 Your stack is ready and we can go to Kibana console for create amazing visualizations !
 
 ## 2- Configuring Kibana and Kuzzle
 
-Before create graphs with kibana, we have to add some datas to Kuzzle. Kuzzle database is based on JSON document collections. 
+Kuzzle is based on documents collections database and our datas are articulate in this way :
 
-First we need to create an index in Kuzzle, for doing that, simply run this command in a new tab in your terminal :
-
-```bash
-$ curl -X POST http://localhost:7512/myawesomeindex/_create
+```json
+{
+    "_index":"iot",
+    "_type":"device-state",
+    "_id":"AWFSDI8RAUgq-wTF-Lwg",
+    "_score":1,
+    "_source": {
+        "device_id":"motion_00000000c9591b74",
+        "device_type":"motion-sensor",
+        "partial_state":false,
+        "state": {
+            "motion":true,
+        },
+        "_kuzzle_info": {
+            "author":"iot-device",
+            "createdAt":1517834432225,
+            "updatedAt":null,
+            "updater":null,
+            "active":true,
+            "deletedAt":null
+        }
+    }
+}
 ```
-You just created a new index called 'myawesomeindex'. But this index seems to be a bit alone, he need a collection to be really awesome.
+We can notice that we have and index called `iot` and a collection called `device-state`. Informations that interests us is store in the `state` object. Timestamp dates are stocked in `_kuzzle_info` metafield object of our document. 
 
-Always in your terminal create a collection by running this command :
+Before create graphs with Kibana, we have to configure it. Browse http://localhost:5601 and you will arrive to the management page of Kibana.
 
-```bash
-$ curl -X PUT http://localhost:7512/myawesomeindex/myGreatfCollection
-```
+We need to tell Kibana where our dates and times are stocked, click on "Advanced Settings" link and find the "metaFields" input, click on the edit button and add `_kuzzle_info.createdAt`, don't forget to save your changes.
 
-Now we have a collection but we need documents to visualize, for follow this tutorial, you can download this JSON sample data [here] and import it to Kuzzle.
+![Kibana-metafields](img/kibana0.png)
 
-```bash
-$ curl http://localhost:7512/myawesomeindex/mygreatcollection/_create -d @data.json \
---header "Content-Type: application/json"
-```
-
-The file you just imported contain sample data from IoT sensor, we have temperature, light level and humidity percents.
-
-Now it's time to go to Kibana console for some configurations ! Browse http://localhost:5601 and you will arrive to the management page of Kibana.
-
-
-We have to give to Kibana the index name we just created in Kuzzle. Type 'myawesomeindex' in the input text. Kibana will automatically find the time based field. Click on "Create" button.
+At this time we have to give to Kibana the index name we want to use. Click on "Index Patterns" and type `iot` in the input text. Kibana will automatically find the time based field we just added. Click on "Create" button to validate.
 
 ![Kibana-index-pattern](img/kibana1.png)
 
 Kibana will parse every searchable or aggreagatable fields and show you these fields. 
 
-We just finishing configuring.
+Next step we have to add a scripted field in kibana, remember we want to visualize detected motions captured by our sensor, but this sensor return a boolean when he detect mouvement. Only numbers fields can be aggreagatable so we need to create a scripted field.
+
+Click on "scripted fields" tabs and on the "Add Scripted Field" button. Give a name to your new field, `detected motions` seems nice.
+Kibana use Painless script, that sound good in our ears. so don't touch others configurations inputs and go directly to "Script" textarea and type :
+
+```
+doc['state.motion'].value ? 1 : 0
+```
+
+![Kibana-index-pattern](img/kibana3.png)
+
+This will create a new aggreagatable number field that parse all documents in our index with the boolean field `state.motion` and return 1 or 0 depends on his value.
+
+Save our new scripted field and we just finishing configuring.
 
 ## 3- Create visualizations and dashboard
 
-It's the fun part of this tutorial and that's why you are here ! We will create one graph with the datas previously added in Kuzzle, ready? let's go!
+It's the fun part of this tutorial and that's why you are here ! We will create one graph with the datas previously added, ready? let's go!
 
 Click on "Visualize" button on left menu and click on "Create a visualization".
 
-Our first graph will be a bar graph of humidity variation, so choose "Vertical Bar" and choose your index by clicking on "myawesomeindex".
+Our first graph will be a bar graph of detected motions, so choose "Vertical Bar" and choose your index by clicking on "iot".
 
-Kibana is a great tool for visualizing data in real time, but in this tutorial, for easy comprehension we use an extract of a big JSON dump with a date field. First thing to do is to select a time period. Click on time range button on the top right corner (by default it's set to "Last 15 minutes"), now click on "Absolute" and choose a range in the dates pickers. The JSON dump we use start to 01-01-2018 and end to 01-10-2018, so pick these dates and validate.
+Kibana is a great tool for visualizing data in real time, but in this tutorial, for easy comprehension we use just an extract of our IoT sensor datas on fews days. First thing to do is to select a time period. Click on time range button on the top right corner (by default it's set to "Last 15 minutes"), now click on "Absolute" and choose a range in the dates pickers. The JSON dump we use start to 02-05-2018 and end to 02-07-2018, so pick these dates and validate.
 
 ![Kibana-time-range](img/kibana2.png)
 
 We need to configure our graph, first, the Y axis :
-Unfold the "Y-axis" menu and we have to choose an aggregation, select "Average" in the dropdown menu. Next we have to choose the field we want to aggregate. Like I said, we build a graph about relative humidity, so select this field. It's possible to enter a custom label to embellish our graph, do not deprive us and type "Humidity" in the the text box meant for that purpose.
+Unfold the "Y-axis" menu and we have to choose an aggregation, select "Sum" in the dropdown menu. Next we have to choose the field we want to aggregate. Find the `detected motions` field and select it. It's possible to enter a custom label to embellish our graph, do not deprive us and type what you want in the the text box meant for that purpose, this is the text legend of our Y axis graph.
 
-![Kibana-y-axis](img/kibana3.png)
+![Kibana-y-axis](img/kibana4.png)
 
-It's time to configure the X axis, we want to sort our humidity data by date.
-Click on the "X-Axis" button and select "Date Histogram". Kibana automatically select the date field but we have to choose an interval, pick a daily interval in the dropdown menu. And like previously type a custom label, for exemple "Date".
+It's time to setup the X axis, we want to sort our detected motions by date.
+Click on the "X-Axis" button and select "Date Histogram". Kibana automatically select the date field but we have to choose an interval, pick a hourly interval in the dropdown menu. And like previously type a custom label, for exemple "Date".
 
-![Kibana-x-axis](img/kibana4.png)
+![Kibana-x-axis](img/kibana5.png)
 
 Now click on the "Apply change" button ![Kibana-apply-button](img/kibana-apply-button.png) to see our beautiful graph.
 
-![Kibana-bar-graph](img/kibana5.png)
+![Kibana-bar-graph](img/kibana6.png)
+
+Save your new graph by clicking on the save button on the top menu, give it a name and validate.
+
+And now, the final step, we will add our super graph in a dashboard. Click on the "Dashboard" button on the left side menu and click on the appropriate button to create a new dashboard.
+Like Kibana said, "This dashboard is empty. Let's fill it up!" so click on the "Add" link on the top menu
+
+![Kibana-add-to-dashboard](img/kibana7.png)
+
+Choose the visualization we just created and it will be added to our dashboard! Here we are, we have a dashboard with a beautiful graph showing detected motions over a time period!
+
+Feel free to play and experiment by yourself with our datas to add anothers graph on this dashboard :)
 
