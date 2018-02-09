@@ -84,7 +84,7 @@ $ docker-compose up
 ```
 If everything is correct you should now see the entire logs for all services running. You can check if kuzzle is working correctly by browsing http://localhost:7512?pretty=true. Kuzzle should respond with a list of the existing routes.
 
-Your stack is ready and at his stage you can go to Kibana console to create amazing visualizations !
+Your stack is ready and at this stage you can go to Kibana console to create amazing visualizations !
 
 ## 2- Configuring Kibana and Kuzzle
 
@@ -146,11 +146,11 @@ Save our new scripted field. We just finished configuring !
 
 ## 3- Create visualizations and dashboard
 
-this is the fun part of this tutorial and that's why you're here ! We're going to create our first graph, ready? Let's go!
+This is the fun part of this tutorial and that's why you're here ! We're going to create our first graph, ready? Let's go!
 
 Click on "Visualize" button on left side menu and click on "Create a visualization".
 
-we want our first graph to be a bar graph of detected motions, so choose "Vertical Bar" and your index by clicking on "iot".
+We want our first graph to be a bar graph of detected motions, so choose "Vertical Bar" and your index by clicking on "iot".
 
 Kibana is a great tool for visualizing data in real time. In this tutorial, for easy comprehension we will use only an extract of our IoT sensor datas for a few days. First thing to do is to select a time period. Click on time range button on the top right corner (by default it's set to "Last 15 minutes").
 Now click on "Absolute" and choose a range in the dates pickers. The dump we use start on 02-05-2018 and ends on 02-07-2018. Pick these dates and validate them ("Go" button).
