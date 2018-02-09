@@ -135,7 +135,15 @@ Click on "Index Patterns" and type `iot` in the input text. Kibana will automati
 
 Kibana will parse every searchable or aggreagatable fields and show you these fields. 
 
-The next step is to add a scripted field in kibana. Remember we want to visualize detected motions captured by our sensor, but this sensor returns a boolean when it detects mouvements. Only numbers fields can be aggreagatable so we need to create a scripted field.
+The next step is to add a scripted field in kibana. Remember we want to visualize detected motions captured by our sensor, but this sensor returns a boolean when it detects mouvements.
+
+```json
+"state": {
+  "motion":true
+}
+```
+
+Only numbers fields can be aggreagatable so we need to create a scripted field.
 
 Click on "scripted fields" tabs and on the "Add Scripted Field" button. Give a name to your new field, `detected motions` seems nice.
 Kibana uses Painless script, that sounds good to our ears. Do not touch others configurations inputs but go directly to "Script" textarea and type :
