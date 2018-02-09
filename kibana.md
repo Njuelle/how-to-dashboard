@@ -65,7 +65,7 @@ Also, we need elasticsearch to store the data. For the goal of this tutorial, we
 Now we have a full Kuzzle backend stack ready to blaze your datas ! Please don't forget, we are here to make an awesome dashboard. Then add Kibana service to your `docker-compose.yml`
 
 ```yaml
-kibana:
+  kibana:
     image: docker.elastic.co/kibana/kibana:5.4.1
     environment:
       - SERVER_HOST=0.0.0.0
