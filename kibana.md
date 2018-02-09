@@ -19,7 +19,7 @@ First of all, you should install docker and docker-compose.
 
 To start we have to write a docker-compose file (in yaml) to launch a stack with Kuzzle, Elastic-search and Kibana. Create a file called `docker-compose.yml`.
 
-To begin we have to add some services in this file, and so we will need Kuzzle, Redis and Elastic-search :
+To begin we have to add the Kuzzle service in this file. 
 
 ```yaml
 version: '2'
@@ -39,10 +39,16 @@ services:
       - kuzzle_services__internalCache__node__host=redis
       - kuzzle_services__memoryStorage__node__host=redis
       - NODE_ENV=production
+```
+For internal usage, Kuzzle need Redis. Add this service to the following of our docker-compose file :
 
+```yaml
   redis:
     image: redis:3.2
+```
+Also, we need elasticsearch to store the data. For the goal of this tutorial, we use a pre-build image with some data already loaded :
 
+```yaml
   elasticsearch:
     image: njuelle/es-tuto-kuzzle-kibana
     environment:
