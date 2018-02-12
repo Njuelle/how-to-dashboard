@@ -189,13 +189,13 @@ Save your new chart by clicking on the save button on the top menu, give it a na
 
 And to finish we will add this super graph to a dashboard.
 Click on the "Dashboard" button on the left side menu and click on the appropriate button to create a new dashboard.
-Like Kibana saids, "This dashboard is empty. Let's fill it up!". So click on the "Add" link on the top menu
+Like Kibana saids, "This dashboard is empty. Let's fill it up!". So click on the "Add" link on the top menu.
 
 ![Kibana-add-to-dashboard](img/kibana7.png)
 
 Choose the visualization we just created and it will be added to our dashboard ! Here we are, we have a dashboard with a beautiful graph showing detected motions of our IoT board over a time period!
 
-Kibana give you the possibility to share your dashboard, with an URL that you can send to people or directly on a web page with an iframe
+Kibana give you the possibility to share your dashboard, with an URL that you can send to people or directly on a web page with an iframe.
 
 Feel free to play and experiment by yourself with our datas to add other graphs to this dashboard :-)
 
