@@ -50,7 +50,7 @@ Also, we need elasticsearch to store the data. For the goal of this tutorial, we
 
 ```yaml
   elasticsearch:
-    image: njuelle/es-tuto-kuzzle-kibana
+    image: kuzzleio/es-tuto-kuzzle-kibana
     environment:
       - cluster.name=kuzzle
       - xpack.security.enabled=false
