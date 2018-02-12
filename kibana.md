@@ -8,7 +8,7 @@ Having tons of datas is awesome but visualizing them and having them say somethi
 
 [Kuzzle](http://kuzzle.io/) is an open-source self-hostable backend, ready to use for power web, mobile and IoT applications. It allows you to drastically reduce your developpement time and give you tools for real-time datas management, geofencing and others extras features.
 
-Today, our goal is to make a beautiful dashboard about IoT datas collected through a board installed in our office. This board capture light level, humidity, temperature and detected motions for demonstration and testing. It's a great use case for tutorials and I've decided to create an elastic-search docker image with all our datas to make it easier to follow. (you can see more informations about this image [here]).
+Today, our goal is to make a beautiful dashboard about IoT datas collected through a board installed in our office. This board capture light level, humidity, temperature and detected motions for demonstration and testing. It's a great use case for tutorials and I've decided to create an elastic-search docker image with all our datas to make it easier to follow. (you can see more informations about this image [here](https://hub.docker.com/r/kuzzleio/es-tuto-kuzzle-kibana/))
 
 After reading this article, we will have a dashboard showing you detected motions over the time.
 
