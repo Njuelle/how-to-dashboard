@@ -1,6 +1,8 @@
 # Kuzzle, BiqQuery and Data-studio dashboard
 
-Today we want to configure Kuzzle with BiqQuery and Data-studio with the intention of doing a dashboard to monitor our datas with these tools. As you know Data-studio needs to manage data source and for that we will use BigQuery as data warehouse.
+![full-dashboard](img/bq-full-dashboard.png)
+
+Today we want to configure Kuzzle with BiqQuery and Data-studio with the intention of doing a dashboard to monitor and visualize our datas with these tools. As you know Data-studio needs to manage data source and for that we will use BigQuery as data warehouse.
 
 A common need when using Kuzzle in production, is to have insights about it and perform analytics on events occurring during an instance's lifecycle. A common supply for this need is to allow attaching probes to the production instance and send the events somewhere. At Kuzzle, we use Kuzzle to monitor Kuzzle.
 
@@ -14,7 +16,7 @@ The probes plugin can manage 3 kinds of probes :
  - ```counter``` probes aggregate multiple fired events into a single measurement counter.
  - ```watcher``` probes watch documents and messages activity, counting them or retrieving part of their content.
 
-We will use the last one in this article to send data to our dashboard.
+We will only use the "watcher" probe in this article to send data to our dashboard.
 
 In a precedent article, I have explained that we have an IoT board installed in our office that sends data about some weather measures and detected motions. Today for training purpose, imagine we want monitor only ligth level and view average values sorted by hours in an awesome chart in Data-studio.
 
@@ -24,7 +26,7 @@ In a nuthsell we want every time a light level measure is added in our primary K
 
 Like said previously we need 2 Kuzzle stacks and a bunch of plugins to be configured in harmony to gets one big stack ready to blow up our datas !
 
-For orchestrating all of that, we need to write a docker-compose file. First, the primary stack
+For orchestrating all of that, we need to write a docker-compose file. First, the primary stack :
 
 ```yaml
 version: '2'
@@ -101,6 +103,20 @@ After that we can add the KDC stack to our docker-compose :
 
 As in the primary stack we mount volumes in Kuzzle with the "Kuzzle-enterprise-probe" and the "kdc-bigquery-connector" plugins with proper configuration file.
 
+Our light level sensor installed in the IoT board send documents in the Kuzzle primary stack that looks like this :
+
+```JSON
+{
+  "device_id": "light_lvl_00000000c9591b74",
+  "state": {
+    "level": 41.47135416666667
+  },
+  "partial_state": false,
+  "device_type": "light_sensor"
+}
+```
+
+We need to tell to the probes plugins what kind of document it have to watch and what fields we want send to BigQuery.
 
 So, it's time to see these configurations files. The first one will be the Kuzzle listener stack :
 
@@ -131,7 +147,7 @@ So, it's time to see these configurations files. The first one will be the Kuzzl
 ```
 
 It describe all the probes plugged to the listenner, here only one for light level. We use a watcher probes waiting for document creation in the ```iot``` index and in ```device-state``` collection. We also add a filter to catch only documents with field "device_type" equals to "light_sensor".
-When this event happen, the probes will only collect datas that interresting us (```state.level```) and send them to the KDC stack.
+When this event happens, the probes will only collect datas that interresting us (```state.level```) and send them to the KDC stack.
 
 Now, the KDC stack configuration :
 
@@ -237,7 +253,9 @@ It's time to add our first chart to this report ! Click on the time series butto
 ![BigQuery-config-chart](img/bigquery4.png)
 
 That's all ! We have our chart representing light level over time, sorted hour by hour.
-Of course you can customize your chart, Data-studio give a large panel of options to render your graph like another.
+Of course you can customize your chart, Data-studio give a large panel of options to render your graph like another one.
 
 ![BigQuery-chart](img/bigquery3.png)
+
+It's just a short exemple of what we can do with Data-studio and BigQuery. But that demonstrate how we can use the Kuzzle enterprise probes system to easily dump datas to another data warehouse in an asynchrone way without interfere with a primary stack.
 
