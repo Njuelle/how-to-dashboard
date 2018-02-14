@@ -146,7 +146,7 @@ So, it's time to see these configurations files. The first one will be the Kuzzl
 }
 ```
 
-It describe all the probes plugged to the listenner, here only one for light level. We use a watcher probes waiting for document creation in the ```iot``` index and in ```device-state``` collection. We also add a filter to catch only documents with field "device_type" equals to "light_sensor".
+It describe all the probes plugged to the listenner. Here only one for light level. We use a watcher probe waiting for document creation in the ```iot``` index and in ```device-state``` collection. We also add a filter to catch only documents with field "device_type" equals to "light_sensor".
 When this event happens, the probes will only collect datas that interresting us (```state.level```) and send them to the KDC stack.
 
 Now, the KDC stack configuration :
@@ -202,7 +202,7 @@ Now, the KDC stack configuration :
 
 As you can see, the probes plugin configuration parts is exactly the same that for configuring the plugin on the listenner stack.
 To the following, we add the BigQuery plugins configuration. We also need to add our configured probes to this plugin. But this time with the schemas of our BigQuery tables.
-I add ```"timestamp":"true"```, with that option the plugin will automatically add the timestamp for each document collected.
+I add ```"timestamp":"true"```, with this option the plugin will automatically add the timestamp for each document collected.
 
 We can now run our stack with docker in a terminal :
 
@@ -241,7 +241,7 @@ We can go now to the Data-studio console by browsing https://datastudio.google.c
 Data-studio will ask you to add a data-source. Choose "CREATE NEW DATA SOURCE" and validate by clicking on the "ADD TO REPORT" button. 
 Now choose BigQuery on the list on left side. Find your project we just created and choose the data set. And finnaly choose the table you want add to Data-studio. Validate by clicking on the "CONNECT" button on the top right corner.
 
-You will see a summary of your table (it's possible to change the type of your fields here). We need to tell to Data-studio what kind of aggregation we want for the ```level``` field. By default it's set to "sum" but we want an "Average" aggregation so, pick this choice.
+You will see a summary of your table (it's possible to change the type of your fields here). We need to tell to Data-studio what kind of aggregation we want for the ```level``` field. By default it's set to "Sum" but we want an "Average" aggregation so, pick this choice.
 Also we want the chart is indexing by hours. Choose "Date Hour" for the type of the ```timestamp``` field.
 
 ![BigQuery-config-data](img/bigquery5.png)
@@ -257,5 +257,5 @@ Of course you can customize your chart, Data-studio give a large panel of option
 
 ![BigQuery-chart](img/bigquery3.png)
 
-It's just a short exemple of what we can do with Data-studio and BigQuery. But that demonstrate how we can use the Kuzzle enterprise probes system to easily dump datas to another data warehouse in an asynchrone way without interfere with a primary stack.
+It's just a short exemple of what we can do with Data-studio and BigQuery. But that demonstrate how we can use the Kuzzle enterprise probes system to easily dump datas to another data warehouse in an asynchrone way without interfere with a production stack.
 
