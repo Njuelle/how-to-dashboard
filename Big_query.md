@@ -123,7 +123,7 @@ So, it's time to see these configurations files. The first one will be the Kuzzl
 ```JSON
 {
   "plugins": {
-   "kuzzle-enterprise-probe-listener": {
+    "kuzzle-enterprise-probe-listener": {
       "threads": 1,
       "probes": {
         "probe_watcher_1": {
