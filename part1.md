@@ -218,7 +218,7 @@ You can launch your two stacks by running this command in your terminal :
 $ docker-compose up
 ```
 
-And tadaaa ! Magic happens
+And tadaaa ! Magical !
 
 ![Kuzzle logs](img/kuzzle-logs.png)
 
