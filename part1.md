@@ -1,41 +1,42 @@
-# Creating analytics visualizations with Kuzzle - part 1
+# Visualizing Data with Kuzzle Analytics - part 1
 
 
-Having tons of data is awesome but visualizing them and getting them to tell you something meaningful is even cooler. That's why I've decided to write a series of 3 articles on how to build a monitoring dashboard using Kuzzle. The first article is about configuring Kuzzle and his analytics ecosystem. The second one will deal with visualizations and Kibana. And to finish, on the third one we will use Google Data Studio for visualize our datas.  
+Having tons of data is awesome but visualizing them and getting them to tell you something meaningful is even cooler. That's why I've decided to write a series of 3 articles on how to build a monitoring dashboard using Kuzzle. In the first article we will describe  how to configure Kuzzle for analytics. In the second article we will deal with how to visualize data using Kibana. Finally, , in the third article we will use Google Data Studio to visualize our data.  
 
 ![Kuzzle](img/kuzzle.png)
 
-[Kuzzle](http://kuzzle.io/) is an open-source self-hostable backend solution that can power web, mobile and IoT applications. It allows you to drastically reduce your development time and take advantage of builtin features like real-time data management and geofencing, among others.
+[Kuzzle](http://kuzzle.io/) is an open-source self-hostable backend solution that can power web, mobile and IoT applications. It allows you to drastically reduce your development time and take advantage of built-in features like real-time data management and geofencing, among others.
 
-Our goal is to build a beautiful dashboard based on the IoT data collected from a custom multi-sensor device that detects luminosity, humidity, temperature and motion. Kuzzle built this device to demo Kuzzle's core features, you may have seen it at CES. The datas we will use was acquired from the device over a period of 5 days, where it sat in our office and captured all our kooky antics. The device used MQTT protocol to communicate with an on-premise Kuzzle Backend instance, which stored any sensor data it received. 
+Our goal is to build a beautiful dashboard based on the IoT data collected from a custom multi-sensor device that detects luminosity, humidity, temperature and motion. Kuzzle built this device to demo Kuzzle's core features, you may have seen it at CES. This device was connected to an on-premise Kuzzle production stack and sat in our office for a period of 5 days, where it captured all our kooky antics and sent this data to Kuzzle using the MQTT protocol. 
 
-A common need when using Kuzzle in production, is to have insights about it and perform analytics on events occurring during an instance's lifecycle. A common supply for this need is to allow attaching probes to the production instance and send the events somewhere. At Kuzzle, we use Kuzzle to monitor Kuzzle.
+A common requirement when using Kuzzle in production, is to collect and analyse data that it is processing.  This can be done thanks to Kuzzle Analytics, which allows you to collect and route data to other applications. In our case, we have a multi-sensor device connected to our Kuzzle production stack, which in turn is connected to a Kuzzle Data Collector (KDC) stack. 
+![kdc-schema](img/kdc-schema2.png)
 
-![kdc-schema](img/kdc-schema2.png) 
 
-KDC (for Kuzzle Data Collector) is plugged to the primary stack by the probes plugin and wait for configured events occurs. 
-When dones we just have to exploit these datas.
+For simplicity, we use the name KDC to represent a stack that uses our kuzzle-enterprise-probes plugin to collect data. 
 
-The probes plugin can manage 3 kinds of probes : 
- - ```monitor``` probes are basic event counters, used to monitor Kuzzle activity.
- - ```counter``` probes aggregate multiple fired events into a single measurement counter.
- - ```watcher``` probes watch documents and messages activity, counting them or retrieving part of their content.
 
-In a nuthsell we want every time a detected motion is added in our primary Kuzzle stack, the probes catch it and send it to the KDC stack.
 
-At the end of these tutorials, we will have created a dashboard that shows the office's activity (detected motions) over time.
+The probes plugin can manage 3 types of probes :
+ - ```monitor``` probes are basic event counters used to monitor Kuzzle activity.
+ - ```counter``` probes aggregate multiple events into a single measurement.
+ - ```watcher``` probes watch documents and messaging activity, counting them or retrieving part of their content.
+
+In our scenario, we want the Kuzzle production stack to send data to our KDC stack anytime a motion is detected on the multi-sensor device. Probes allow us to detect this activity and push it to the KDC stack.
+
+At the end of these 3 tutorials, we will have created a dashboard that shows the office's activity (detected motions) over time.
 
 ## 1- Preparing your files
 
-Let's get started. First of all, you should install docker and docker-compose. If it's not already done you can check these tutorials : [Install Docker](https://docs.docker.com/install/) and [Install Docker Compose](https://docs.docker.com/compose/install/).
+Let's get started. First of all, you will need docker and docker-compose. If you don’t already have it,  you can check these tutorials : [Install Docker](https://docs.docker.com/install/) and [Install Docker Compose](https://docs.docker.com/compose/install/).
 
-Like said previously we need 2 Kuzzle stacks and a bunch of plugins to be configured in harmony to gets one big stack ready to blow up our datas !
+Now we need to configure our two Kuzzle stacks and a bunch of plugins so that we can start crunching data  !
 
-Each stack need a probes plugins and a configuration file to communicate together. An overview of our files organisation will look like that :
+Each stack needs to have the  kuzzle-enterprise-probes plugin configured Here’s an overview of our directory structure:
 
 ![Kuzzle](img/files.png)
 
-For the first step we have to write a Docker Compose file that will launch our production stack. Create a file called `docker-compose.yml`. 
+For the first step we have to write a Docker Compose file that will launch our Kuzzle production stack. Create a file called `docker-compose.yml`.
 
 Now add the Kuzzle service in this file. Note that we use environment variables to configure the Elasticsearch connection. We also expose port 7512 which will allow clients to communicate with the service through your docker host.
 
@@ -69,7 +70,7 @@ Next we need to add Redis (used internally by Kuzzle) to the docker-compose.yml 
   redis:
     image: redis:3.2
 ```
-We will also need Elasticsearch to store the data collected from our custom multi-sensor device: 
+We will also need Elasticsearch to store the data collected from our custom multi-sensor device:
 
 ```yaml
   elasticsearch:
@@ -85,9 +86,9 @@ We will also need Elasticsearch to store the data collected from our custom mult
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
 ```
 
-We have now configured the full production Kuzzle stack !
+We have now configured the Kuzzle production stack !
 
-Based on the same schema, now we can add the KDC stack on our docker-compose file :
+Now let’s add the KDC stack to our docker-compose file :
 
 ```yaml
   kdc-kuzzle:
@@ -151,9 +152,9 @@ Kuzzle stores data in document collections within an index. Below is an example 
 }
 ```
 
-Notice that this document is stored in a collection called `device-state`, in an index called `iot`. The data we are interested in is stored in the `state` object, while metadata such as timestamps are stored in the `_kuzzle_info` document. 
+Notice that this document is stored in a collection called `device-state`, in an index called `iot`. The data we are interested in is stored in the `state` object, while metadata such as timestamps are stored in the `_kuzzle_info` document.
 
-At this time, we need to create the first configuration file to tell the kuzzle-enterprise-probe-listener plugin what measure it have to collect. Name it ```kuzzlerc``` and add these lines :
+At this time, we need to create the first configuration file to tell the kuzzle-enterprise-probe-listener plugin what to collect. Name it ```kuzzlerc``` and add these lines :
 
 ```json
 {
@@ -181,9 +182,7 @@ At this time, we need to create the first configuration file to tell the kuzzle-
 }
 ```
 
-Currently we have correctly configurate our production instance and right now we have to do the same for the KDC instance.
-
-Create another configuration file, call it ```kdcrc``` :
+Now on the KDC stack we need to configure the kuzzle-enterprise-probe to collect the data. Create another configuration file and call it  ```kdcrc``` : 
 
 ```json
 {
@@ -211,11 +210,16 @@ Create another configuration file, call it ```kdcrc``` :
 }
 ```
 
-Here we are! we have our full system configured and ready to perform analytics with our IoT datas.
-Every time our sensor detect a gesture, a document is send by the plugins to the KDC instance.
+There you have it! We have setup both our stacks and ready to dive into analytics with our IoT data.
 
-Next time we will see how to take advantage and visualize all of these datas with Kibana.
+You can launch your two stacks by running this command in your terminal :
 
+```
+$ docker-compose up
+```
 
+And tadaaa ! Magic happens
 
+![Kuzzle logs](img/kuzzle-logs.png)
 
+In our next tutorial, we will show you how to visualize all of this data in Kibana.

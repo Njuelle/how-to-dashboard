@@ -1,18 +1,27 @@
-# Visualizing Data with Kuzzle Analytics - part 1
+# Creating Visualizations with Kuzzle Backend and Kibana
 
 ![Kibana-full-dashboard](img/full-dashboard.png)
 
-In a [precedent article] we seen how to configure the Kuzzzle analytics ecosystem with the probes plugins.
-Now we will give a look at how to configure Kibana for making great visualizations with our datas.
-Remember, we have 2 Kuzzle stacks : one for production and another one for monitoring events.
+Having tons of data is awesome but visualizing them and getting them to tell you something meaningful is even cooler. That's why I've decided to write this tutorial on how to build a monitoring dashboard using Kuzzle Backend and Kibana.
 
-![Kuzzle KDC schema](img/kdc-schema2.png)
+![Kuzzle Backend](img/kuzzle.png) ![Kibana](img/kibana.png)
 
-What we want now is to plug Kibana to our KDC instance to create a dashboard with datas catched by the probes plugin. Remember again, our datas was collected trought an IoT sensor placed in our office who capture temperature, humidity, light level and motions. To making easier to follow this tutorial the Kuzzle data was then exported and loaded into a docker image. For more about the image click [here](https://hub.docker.com/r/kuzzleio/es-tuto-kuzzle-kibana/).
+[Kuzzle Backend](http://kuzzle.io/) is an open-source self-hostable backend solution that can power web, mobile and IoT applications. It allows you to drastically reduce your development time and take advantage of builtin features like real-time data management and geofencing, among others.
 
-## 1- Update your Docker Compose file
+Today, our goal is to build a beautiful dashboard based on the IoT data collected from a custom multi-sensor device that detects luminosity, humidity, temperature and motion. Kuzzle built this device to demo Kuzzle Backend's core features, you may have seen it at CES. To make it easier for you, I've created an Elasticsearch docker image with preloaded data. This data was acquired from the device over a period of 5 days, where it sat in our office and captured all our kooky antics. The device used MQTT protocol to communicate with an on-premise Kuzzle Backend instance, which stored any sensor data it received. The Kuzzle Backend data was then exported and loaded into the docker image. For more about the image click [here](https://hub.docker.com/r/kuzzleio/es-tuto-kuzzle-kibana/).
 
-Last time, we created a docker compose file and it look like that :
+At the end of this tutorial, we will have created a dashboard that shows the office's activity (detected motions) over time.
+
+Let's get started. First of all, you should install docker and docker-compose. ****LINK*** or ***INSTRUCTIONS?***
+
+
+## 1- Preparing your Docker Compose file
+
+First we have to write a Docker Compose file that will launch our stack: Kuzzle Backend, Elasticsearch and Kibana. 
+
+Create a file called `docker-compose.yml`.
+
+Now add the Kuzzle Backend service in this file. Note that we use environment variables to configure the Elasticsearch connection. We also expose port 7512 which will allow clients to communicate with the service through your docker host.
 
 ```yaml
 version: '2'
@@ -32,15 +41,18 @@ services:
       - kuzzle_services__internalCache__node__host=redis
       - kuzzle_services__memoryStorage__node__host=redis
       - NODE_ENV=production
-    volumes:
-      - "./plugins/kuzzle-enterprise-probe-listener/:/var/app/plugins/enabled/kuzzle-enterprise-probe-listener/"
-      - "./config/kuzzlerc:/etc/kuzzlerc"
+```
+Next we need to add Redis (used internally by Kuzzle Backend) to the docker-compose.yml file. Add the following config:
 
+```yaml
   redis:
     image: redis:3.2
+```
+We will also need Elasticsearch to store the data. For the purpose of this tutorial we use a preloaded docker image that contains data collected from our custom multi-sensor device:
 
+```yaml
   elasticsearch:
-    image: kuzzleio/elasticsearch:5.4.1
+    image: kuzzleio/es-tuto-kuzzle-kibana
     environment:
       - cluster.name=kuzzle
       - xpack.security.enabled=false
@@ -50,47 +62,9 @@ services:
       - http.host=0.0.0.0
       - transport.host=0.0.0.0
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
-  
-  kdc-kuzzle:
-    image: kuzzleio/kuzzle
-    ports:
-      - "7515:7512"
-      - "9229:9229"
-    cap_add:
-      - SYS_PTRACE
-    depends_on:
-      - kdc-redis
-      - kdc-elasticsearch
-    volumes:
-      - "./plugins/kuzzle-enterprise-probe:/var/app/plugins/enabled/kuzzle-enterprise-probe/"
-      - "./config/kdcrc:/etc/kuzzlerc"
-    environment:
-      - kuzzle_services__db__client__host=http://kdc-elasticsearch:9200
-      - kuzzle_services__internalCache__node__host=kdc-redis
-      - kuzzle_services__memoryStorage__node__host=kdc-redis
-      - NODE_ENV=production
-
-  kdc-redis:
-    image: redis:3.2
-
-  kdc-elasticsearch:
-    image: kuzzleio/elasticsearch:5.4.1
-    environment:
-      - cluster.name=kuzzle
-      # disable xpack
-      - xpack.security.enabled=false
-      - xpack.monitoring.enabled=false
-      - xpack.graph.enabled=false
-      - xpack.watcher.enabled=false
 ```
 
-Before continue this tutorial, update the ```kdc-elasticsearch``` service with the preloaded docker image that contains data collected from our custom multi-sensor device :
-(on line 60 of our docker-compose.yml file)
-```yaml
-    image: kuzzleio/es-tuto-kuzzle-kibana
-```
-
-Right now we can add the Kibana sercive at the following of the same file :
+We have now configured the full Kuzzle Backend stack! But don't forget: we are here to make an awesome dashboard! So we'll need Kibana. Add this service to your `docker-compose.yml`
 
 ```yaml
   kibana:
@@ -108,7 +82,7 @@ If you are a fine observer you may have noticed that we are mounting a volume wh
 ```yaml
 server.name: kibana
 server.host: "0"
-elasticsearch.url: http://kdc-elasticsearch:9200
+elasticsearch.url: http://elasticsearch:9200
 ```
 
 Now you can run the Docker Compose file in your favorite terminal:
@@ -122,11 +96,7 @@ Your stack is ready! Now you can open Kibana and create amazing visualizations!
 
 ## 2- Configuring Kibana and Kuzzle Backend
 
-Before creating charts with Kibana, we have to configure it. Open http://localhost:5601 in a browser and you should see the Kibana management page.
-
-First, we need to tell Kibana where to find our timestamps. 
-
-As a reminder, document send by our IoT device have a meta field ```_kuzzle_info.createdAt```
+Kuzzle Backend stores data in document collections within an index. Below is an example document that represents a single motion capture:
 
 ```json
 {
@@ -152,8 +122,11 @@ As a reminder, document send by our IoT device have a meta field ```_kuzzle_info
     }
 }
 ```
+Notice that this document is stored in a collection called `device-state`, in an index called `iot`. The data we are interested in is stored in the `state` object, while metadata such as timestamps are stored in the `_kuzzle_info` document. 
 
-To add it to Kibana, click on "Advanced Settings", find the "metaFields" input, and then click the edit button and add `_kuzzle_info.createdAt`. Don't forget to save your changes!
+Before creating charts with Kibana, we have to configure it. Open http://localhost:5601 in a browser and you should see the Kibana management page.
+
+First, we need to tell Kibana where to find our timestamps. To do this, click on "Advanced Settings", find the "metaFields" input, and then click the edit button and add `_kuzzle_info.createdAt`. Don't forget to save your changes!
 
 ![Kibana-metafields](img/kibana0.png)
 
