@@ -1,107 +1,13 @@
-# Kuzzle, BiqQuery and Data-studio dashboard
+# Visualizing Data with Kuzzle Analytics - part 3
 
 ![full-dashboard](img/bq-full-dashboard.png)
 
-Today we want to configure Kuzzle with BiqQuery and Data-studio with the intention of doing a dashboard to monitor and visualize our datas with these tools. As you know Data-studio needs to manage data source and for that we will use BigQuery as data warehouse.
+Today we want to configure Kuzzle with BiqQuery and Data-studio with the intention of doing a dashboard to monitor and visualize our datas with Kuzzle and these tools. As you know Data-studio needs to manage data source and for that we will use BigQuery as data warehouse.
 
-A common need when using Kuzzle in production, is to have insights about it and perform analytics on events occurring during an instance's lifecycle. A common supply for this need is to allow attaching probes to the production instance and send the events somewhere. At Kuzzle, we use Kuzzle to monitor Kuzzle.
-
-![kdc-schema](img/kdc-schema.png) 
-
-KDC (for Kuzzle Data Collector) is plugged to the primary stack by the probes plugin and wait for configured events occurs. 
-When dones, it sends datas to BigQuery through another plugin. And finally we just have to put these datas in a data source and use them in Data-studio.
-
-The probes plugin can manage 3 kinds of probes : 
- - ```monitor``` probes are basic event counters, used to monitor Kuzzle activity.
- - ```counter``` probes aggregate multiple fired events into a single measurement counter.
- - ```watcher``` probes watch documents and messages activity, counting them or retrieving part of their content.
-
-We will only use the "watcher" probe in this article to send data to our dashboard.
-
-In a precedent article, I have explained that we have an IoT board installed in our office that sends data about some weather measures and detected motions. Today for training purpose, imagine we want monitor only ligth level and view average values sorted by hours in an awesome chart in Data-studio.
-
-In a nuthsell we want every time a light level measure is added in our primary Kuzzle stack, the probes catch it and send it to the BiqQuery appropriate table and feed our graph with these datas.
 
 ## 1- Docker-compose and configuration files
 
-Like said previously we need 2 Kuzzle stacks and a bunch of plugins to be configured in harmony to gets one big stack ready to blow up our datas !
 
-For orchestrating all of that, we need to write a docker-compose file. First, the primary stack :
-
-```yaml
-version: '2'
-
-services:
-  kuzzle:
-    image: kuzzleio/kuzzle
-    ports:
-      - "7512:7512"
-    volumes:
-      - "./../kuzzle-enterprise-probe-listener/:/var/app/plugins/enabled/kuzzle-enterprise-probe-listener/"
-      - "./docker-compose/kuzzlerc:/etc/kuzzlerc"
-    depends_on:
-      - redis
-      - elasticsearch
-    environment:
-      - kuzzle_services__db__client__host=http://elasticsearch:9200
-      - kuzzle_services__internalCache__node__host=redis
-      - kuzzle_services__memoryStorage__node__host=redis
-    
-
-  redis:
-    image: redis:3.2
-
-  elasticsearch:
-    image: kuzzleio/elasticsearch:5.4.1
-    environment:
-      - cluster.name=kuzzle
-      # disable xpack
-      - xpack.security.enabled=false
-      - xpack.monitoring.enabled=false
-      - xpack.graph.enabled=false
-      - xpack.watcher.enabled=false
-```
-Here we have the plugin "Kuzzle-enterprise-probe-listener" mounted in a volume together with a ```kuzzlerc``` file for configuring the plugin.
-
-After that we can add the KDC stack to our docker-compose :
-
-```yaml
-  kdc-kuzzle:
-    image: kuzzleio/kuzzle
-    ports:
-      - "7515:7512"
-      - "9229:9229"
-    cap_add:
-      - SYS_PTRACE
-    depends_on:
-      - kdc-redis
-      - kdc-elasticsearch
-    volumes:
-      - "./:/var/app/plugins/enabled/kuzzle-enterprise-probe/"
-      - "./../kdc-bigquery-connector/:/var/app/plugins/enabled/kdc-bigquery-connector/"
-      - "./docker-compose/kdcrc:/etc/kuzzlerc"
-    environment:
-      - kuzzle_services__db__client__host=http://kdc-elasticsearch:9200
-      - kuzzle_services__internalCache__node__host=kdc-redis
-      - kuzzle_services__memoryStorage__node__host=kdc-redis
-      - NODE_ENV=production
-
-  kdc-redis:
-    image: redis:3.2
-
-  kdc-elasticsearch:
-    image: kuzzleio/elasticsearch:5.4.1
-    environment:
-      - cluster.name=kuzzle
-      # disable xpack
-      - xpack.security.enabled=false
-      - xpack.monitoring.enabled=false
-      - xpack.graph.enabled=false
-      - xpack.watcher.enabled=false
-
-```
-
-As in the primary stack we mount volumes in Kuzzle with the "Kuzzle-enterprise-probe" and the "kdc-bigquery-connector" plugins with proper configuration file.
 
 Our light level sensor installed in the IoT board send documents in the Kuzzle primary stack that looks like this :
 
@@ -116,63 +22,9 @@ Our light level sensor installed in the IoT board send documents in the Kuzzle p
 }
 ```
 
-We need to tell to the probes plugins what kind of document it have to watch and what fields we want send to BigQuery.
-
-So, it's time to see these configurations files. The first one will be the Kuzzle listener stack :
-
-```JSON
-{
-  "plugins": {
-    "kuzzle-enterprise-probe-listener": {
-      "threads": 1,
-      "probes": {
-        "probe_watcher_1": {
-          "type":"watcher",
-          "index": "iot",
-          "collection": "device-state",
-          "filter": {
-            "equals": {
-              "device_type": "light_sensor"
-            }
-          },
-          "action": "create",
-          "collects": [
-            "state.level"
-          ]
-        }
-      }
-    }
-  }
-}
-```
-
-It describe all the probes plugged to the listenner. Here only one for light level. We use a watcher probe waiting for document creation in the ```iot``` index and in ```device-state``` collection. We also add a filter to catch only documents with field "device_type" equals to "light_sensor".
-When this event happens, the probes will only collect datas that interresting us (```state.level```) and send them to the KDC stack.
-
 Now, the KDC stack configuration :
 
 ```JSON
-{
-  "plugins": {
-    "kuzzle-enterprise-probe": {
-      "storageIndex": "iot",
-      "probes": {
-        "probe_watcher_1": {
-          "type":"watcher",
-          "index": "iot",
-          "collection": "device-state",
-          "filter": {
-            "equals": {
-              "device_type": "light_sensor"
-            }
-          },
-          "action": "create",
-          "collects": [
-            "state.level"
-          ]
-        }
-      }
-    },
     "kdc-bigquery-connector": {
       "projectId": "iot-monitor-192608",
       "dataSet": "probes_iot",
@@ -196,11 +48,8 @@ Now, the KDC stack configuration :
         }
       }
     }
-  }
-}
 ```
 
-As you can see, the probes plugin configuration parts is exactly the same that for configuring the plugin on the listenner stack.
 To the following, we add the BigQuery plugins configuration. We also need to add our configured probes to this plugin. But this time with the schemas of our BigQuery tables.
 I add ```"timestamp":"true"```, with this option the plugin will automatically add the timestamp for each document collected.
 

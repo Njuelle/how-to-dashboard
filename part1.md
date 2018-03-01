@@ -10,10 +10,11 @@ Having tons of data is awesome but visualizing them and getting them to tell you
 Our goal is to build a beautiful dashboard based on the IoT data collected from a custom multi-sensor device that detects luminosity, humidity, temperature and motion. Kuzzle built this device to demo Kuzzle's core features, you may have seen it at CES. This device was connected to an on-premise Kuzzle production stack and sat in our office for a period of 5 days, where it captured all our kooky antics and sent this data to Kuzzle using the MQTT protocol. 
 
 A common requirement when using Kuzzle in production, is to collect and analyse data that it is processing.  This can be done thanks to Kuzzle Analytics, which allows you to collect and route data to other applications. In our case, we have a multi-sensor device connected to our Kuzzle production stack, which in turn is connected to a Kuzzle Data Collector (KDC) stack. 
+
 ![kdc-schema](img/kdc-schema2.png)
 
 
-For simplicity, we use the name KDC to represent a stack that uses our kuzzle-enterprise-probes plugin to collect data. 
+For simplicity, we use the name KDC to represent a stack that uses our kuzzle-enterprise-probes plugin (provided with the Kuzzle Enterprise Edition) to collect data. 
 
 
 
@@ -32,7 +33,7 @@ Let's get started. First of all, you will need docker and docker-compose. If you
 
 Now we need to configure our two Kuzzle stacks and a bunch of plugins so that we can start crunching data  !
 
-Each stack needs to have the  kuzzle-enterprise-probes plugin configured Here’s an overview of our directory structure:
+Each stack needs to have the kuzzle-enterprise-probes plugin configured. Here’s an overview of our directory structure:
 
 ![Kuzzle](img/files.png)
 
@@ -221,5 +222,7 @@ $ docker-compose up
 And tadaaa ! Magical !
 
 ![Kuzzle logs](img/kuzzle-logs.png)
+
+That's how you can use Kuzzle to perform analytics without interfering with your Kuzzle production stack and making it easy to collect data on specifics events.
 
 In our next tutorial, we will show you how to visualize all of this data in Kibana.

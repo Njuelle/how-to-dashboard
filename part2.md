@@ -1,4 +1,4 @@
-# Visualizing Data with Kuzzle Analytics - part 1
+# Visualizing Data with Kuzzle Analytics - part 2
 
 ![Kibana-full-dashboard](img/full-dashboard.png)
 
@@ -8,11 +8,11 @@ Remember, we have 2 Kuzzle stacks : one for production and another one for monit
 
 ![Kuzzle KDC schema](img/kdc-schema2.png)
 
-What we want now is to plug Kibana to our KDC instance to create a dashboard with datas catched by the probes plugin. Remember again, our datas was collected trought an IoT sensor placed in our office who capture temperature, humidity, light level and motions. To making easier to follow this tutorial the Kuzzle data was then exported and loaded into a docker image. For more about the image click [here](https://hub.docker.com/r/kuzzleio/es-tuto-kuzzle-kibana/).
+What we want now is to connect Kibana to our KDC instance to create a dashboard with datas catched by the probes plugin. Remember again, our datas was collected trought an IoT sensor placed in our office who capture temperature, humidity, light level and motions. To making it easier to follow this tutorial the Kuzzle data was then exported and loaded into a docker image. For more about the image click [here](https://hub.docker.com/r/kuzzleio/es-tuto-kuzzle-kibana/).
 
 ## 1- Update your Docker Compose file
 
-Last time, we created a docker compose file and it look like that :
+Last time, we have created a docker compose file and that's how it look like :
 
 ```yaml
 version: '2'
@@ -86,11 +86,12 @@ services:
 
 Before continue this tutorial, update the ```kdc-elasticsearch``` service with the preloaded docker image that contains data collected from our custom multi-sensor device :
 (on line 60 of our docker-compose.yml file)
+
 ```yaml
     image: kuzzleio/es-tuto-kuzzle-kibana
 ```
 
-Right now we can add the Kibana sercive at the following of the same file :
+Right now we can add the Kibana service at the following of the same file :
 
 ```yaml
   kibana:
@@ -153,7 +154,7 @@ As a reminder, document send by our IoT device have a meta field ```_kuzzle_info
 }
 ```
 
-To add it to Kibana, click on "Advanced Settings", find the "metaFields" input, and then click the edit button and add `_kuzzle_info.createdAt`. Don't forget to save your changes!
+To add it to Kibana, click on "Advanced Settings", find the "metaFields" input, and then click the edit button and add `_kuzzle_info.createdAt`. Don't forget to save your changes !
 
 ![Kibana-metafields](img/kibana0.png)
 
