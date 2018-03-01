@@ -2,14 +2,92 @@
 
 ![full-dashboard](img/bq-full-dashboard.png)
 
-Today we want to configure Kuzzle with BiqQuery and Data-studio with the intention of doing a dashboard to monitor and visualize our datas with Kuzzle and these tools. As you know Data-studio needs to manage data source and for that we will use BigQuery as data warehouse.
+Last time we have created a dashboard with Kibana and the probes system showing us detected motion in our office over a lapse of time. This time we will configure Kuzzle with BiqQuery and Data-studio. With the intention of doing a dashboard to monitor and visualize our data with Kuzzle and these tools. As you know Data-studio needs to manage data source and for that we will use BigQuery as data warehouse. 
 
+We have to add the KDC-bigquery-connector plugin to our stack and for change we will visualize data about light level collected by our IoT sensor.
+
+![kdc-schema](img/kdc-schema3.png)
 
 ## 1- Docker-compose and configuration files
 
+First we need to add the KDC-bigquery-connector plugin to our KDC stack in the ```docker-compose.yml``` file.
 
+```yaml
+version: '2'
 
-Our light level sensor installed in the IoT board send documents in the Kuzzle primary stack that looks like this :
+services:
+  kuzzle:
+    image: kuzzleio/kuzzle
+    ports:
+      - "7512:7512"
+    cap_add:
+      - SYS_PTRACE
+    depends_on:
+      - redis
+      - elasticsearch
+    environment:
+      - kuzzle_services__db__client__host=http://elasticsearch:9200
+      - kuzzle_services__internalCache__node__host=redis
+      - kuzzle_services__memoryStorage__node__host=redis
+      - NODE_ENV=production
+    volumes:
+      - "./plugins/kuzzle-enterprise-probe-listener/:/var/app/plugins/enabled/kuzzle-enterprise-probe-listener/"
+      - "./config/kuzzlerc:/etc/kuzzlerc"
+
+  redis:
+    image: redis:3.2
+
+  elasticsearch:
+    image: kuzzleio/elasticsearch:5.4.1
+    environment:
+      - cluster.name=kuzzle
+      - xpack.security.enabled=false
+      - xpack.monitoring.enabled=false
+      - xpack.graph.enabled=false
+      - xpack.watcher.enabled=false
+      - http.host=0.0.0.0
+      - transport.host=0.0.0.0
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+  
+  kdc-kuzzle:
+    image: kuzzleio/kuzzle
+    ports:
+      - "7515:7512"
+      - "9229:9229"
+    cap_add:
+      - SYS_PTRACE
+    depends_on:
+      - kdc-redis
+      - kdc-elasticsearch
+    volumes:
+      - "./plugins/kuzzle-enterprise-probe:/var/app/plugins/enabled/kuzzle-enterprise-probe/"
+      - "./plugins/kdc-bigquery-connector:/var/app/plugins/enabled/kdc-bigquery-connector/"
+      - "./config/kdcrc:/etc/kuzzlerc"
+    environment:
+      - kuzzle_services__db__client__host=http://kdc-elasticsearch:9200
+      - kuzzle_services__internalCache__node__host=kdc-redis
+      - kuzzle_services__memoryStorage__node__host=kdc-redis
+      - NODE_ENV=production
+
+  kdc-redis:
+    image: redis:3.2
+
+  kdc-elasticsearch:
+    image: kuzzleio/elasticsearch:5.4.1
+    environment:
+      - cluster.name=kuzzle
+      # disable xpack
+      - xpack.security.enabled=false
+      - xpack.monitoring.enabled=false
+      - xpack.graph.enabled=false
+      - xpack.watcher.enabled=false
+```
+
+If you look at the ```kdc-kuzzle``` service we will see we have added a new volume to mount our second plugin.
+
+Like i said, this time we want visualize light level in Data-studio so we need to update our configuration files to change our probe system.
+
+Here an example of document sends by our light level sensor :
 
 ```JSON
 {
@@ -18,11 +96,68 @@ Our light level sensor installed in the IoT board send documents in the Kuzzle p
     "level": 41.47135416666667
   },
   "partial_state": false,
-  "device_type": "light_sensor"
+  "device_type": "light-sensor"
 }
 ```
 
-Now, the KDC stack configuration :
+First we have to modify the ```kuzzlerc``` configuration file to add probe watcher that can collect the ```state.level``` value on each document created corresponding to the filter we apply here :
+
+```json
+{
+  "plugins": {
+    "kuzzle-enterprise-probe-listener": {
+      "threads": 1,
+      "probes": {
+        "probe_watcher_1": {
+          "type":"watcher",
+          "index": "iot",
+          "collection": "device-state",
+          "filter": {
+            "equals": {
+              "device_type": "light-sensor"
+            }
+          },
+          "action": "create",
+          "collects": [
+            "state.level"
+          ]
+        }
+      }
+    }
+  }
+}
+```
+
+Now, the KDC stack configuration into the ```kdcrc``` file :
+
+```json
+{
+  "plugins": {
+    "kuzzle-enterprise-probe": {
+      "storageIndex": "iot",
+      "probes": {
+        "probe_watcher_1": {
+          "type":"watcher",
+          "index": "iot",
+          "collection": "device-state",
+          "filter": {
+            "equals": {
+              "device_type": "light-sensor"
+            }
+          },
+          "action": "create",
+          "collects": [
+            "state.level"
+          ]
+        }
+      }
+    }
+  }
+}
+```
+
+To the following, we add the BigQuery plugins configuration in the ```plugins``` JSON object on the same file. We also need to add our configured probes to this plugin. But this time with the schemas of our BigQuery tables.
+if you add ```"timestamp":"true"```, the plugin will automatically add the timestamp for each document collected.
 
 ```JSON
     "kdc-bigquery-connector": {
@@ -50,9 +185,6 @@ Now, the KDC stack configuration :
     }
 ```
 
-To the following, we add the BigQuery plugins configuration. We also need to add our configured probes to this plugin. But this time with the schemas of our BigQuery tables.
-I add ```"timestamp":"true"```, with this option the plugin will automatically add the timestamp for each document collected.
-
 We can now run our stack with docker in a terminal :
 
 ```
@@ -69,7 +201,7 @@ Assuming you have already configured your google account for using BigQuery (if 
 ![BigQuery-create-project](img/bigquery1.png)
 ![BigQuery-create-dataset](img/bigquery2.png)
 
-You don't have to manually create tables, the Kuzzle BigQuery connector plugin will create them automatically depending on the schema you give in the configuration file.
+it's not necessary to create tables manually in the BigQuery admin console, the Kuzzle BigQuery connector plugin will create them automatically depending on the schema you give in the configuration file.
 
 ```JSON
     "schema": {
@@ -106,5 +238,5 @@ Of course you can customize your chart, Data-studio give a large panel of option
 
 ![BigQuery-chart](img/bigquery3.png)
 
-It's just a short exemple of what we can do with Data-studio and BigQuery. But that demonstrate how we can use the Kuzzle enterprise probes system to easily dump datas to another data warehouse in an asynchrone way without interfere with a production stack.
+It's just a short example of what we can do with Data-studio and BigQuery. But that demonstrate how we can use the Kuzzle enterprise probes system to easily dump datas to another data warehouse in an asynchrone way without interfere with a production stack.
 
