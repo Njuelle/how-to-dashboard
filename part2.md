@@ -2,17 +2,17 @@
 
 ![Kibana-full-dashboard](img/full-dashboard.png)
 
-In a [precedent article] we seen how to configure the Kuzzzle analytics ecosystem with the probes plugins.
-Now we will give a look at how to configure Kibana for making great visualizations with our datas.
-Remember, we have 2 Kuzzle stacks : one for production and another one for monitoring events.
+In a [previous article] we demonstrated how to configure Kuzzle Analytics with the probes plugins.
+Now we will look at how to configure Kibana to make great visualizations with our data.
+Remember, we have two Kuzzle stacks : one for production and another one for collecting data and monitoring events.
 
 ![Kuzzle KDC schema](img/kdc-schema2.png)
 
-What we want now is to connect Kibana to our KDC instance to create a dashboard with datas catched by the probes plugin. Remember again, our datas was collected trought an IoT sensor placed in our office who capture temperature, humidity, light level and motions. To making it easier to follow this tutorial the Kuzzle data was then exported and loaded into a docker image. For more about the image click [here](https://hub.docker.com/r/kuzzleio/es-tuto-kuzzle-kibana/).
+Now we want to connect Kibana to our KDC stack in order to create a dashboard with data collected by the probes plugin. Recall that our data was collected using a multi-sensor IoT device placed in our office that captured temperature, humidity, light level and motion. For simplicity, we will prepare a copy of the KDC stack which comes preloaded with the data we collected in Part 1 of this tutorial. This data is embedded in our custom Elasticsearch docker image. For more about the image click [here](https://hub.docker.com/r/kuzzleio/es-tuto-kuzzle-kibana/).
 
 ## 1- Update your Docker Compose file
 
-Last time, we have created a docker compose file and that's how it look like :
+In Part 1 of this series, we created a Docker Compose file that looks like this :
 
 ```yaml
 version: '2'
@@ -84,14 +84,14 @@ services:
       - xpack.watcher.enabled=false
 ```
 
-Before continue this tutorial, update the ```kdc-elasticsearch``` service with the preloaded docker image that contains data collected from our custom multi-sensor device :
+We now want to update the ```kdc-elasticsearch``` service with our custom docker image that contains the data collected from our multi-sensor IoT device :
 (on line 60 of our docker-compose.yml file)
 
 ```yaml
     image: kuzzleio/es-tuto-kuzzle-kibana
 ```
 
-Right now we can add the Kibana service at the following of the same file :
+ow we can add the Kibana service at the end of the file :
 
 ```yaml
   kibana:
@@ -117,17 +117,17 @@ Now you can run the Docker Compose file in your favorite terminal:
 ```bash
 $ docker-compose up
 ```
-If everything is correct the terminal should display logs for all the services we just configured. To be sure, you can check if kuzzle Backend is working correctly by opening http://localhost:7512?pretty=true in your favorite browser, you should see a list of routes exposed by Kuzzle Backend.
+If all goes well the terminal should display logs for all the services we just configured. To be sure, you can check if kuzzleis working correctly by opening http://localhost:7512?pretty=true in your favorite browser, you should see a list of routes exposed by Kuzzle.
 
-Your stack is ready! Now you can open Kibana and create amazing visualizations!
+Your stack is up and ready! Now you can open Kibana and create amazing visualizations!
 
-## 2- Configuring Kibana and Kuzzle Backend
+## 2- Configuring Kibana and Kuzzle
 
-Before creating charts with Kibana, we have to configure it. Open http://localhost:5601 in a browser and you should see the Kibana management page.
+Before we can create charts with Kibana, we need to configure it. Open http://localhost:5601 in a browser to access Kibana’s management page.
 
 First, we need to tell Kibana where to find our timestamps. 
 
-As a reminder, document send by our IoT device have a meta field ```_kuzzle_info.createdAt```
+Note that documents sent by our multi-sensor device have a meta field named ```_kuzzle_info.createdAt``` that contains a timestamp for when the data was generated.
 
 ```json
 {
@@ -176,7 +176,7 @@ The next step is to add a scripted field in Kibana. We want to visualize activit
 Unfortunately, only number fields can be aggregated so we need to create a scripted field that converts the boolean to a number.
 
 Click on "scripted fields" tab and on the "Add Scripted Field" button. Give your new field a name, `detected motions` seems nice.
-Kibana uses Painless script, that sounds good to my ears. Go to the "Script" textarea and type :
+Kibana uses Painless script -that sounds good to my ears. Go to the "Script" textarea and type :
 
 ```
 doc['state.motion'].value ? 1 : 0
@@ -187,18 +187,18 @@ You can ignore the other fields.
 
 This will create a new aggregatable field for each document in our index that returns a 1 or 0 depending on the `state.motion` boolean value.
 
-Save the new scripted field. We just finished the Kibana configuration !
+Save the new scripted field. We just completed the Kibana configuration !
 
 ## 3- Creating Visualizations and Dashboards
 
-This is the fun part of this tutorial and that's why you're here ! We're going to create our first graph, ready? Let's go!
+Now to the fun part of this tutorial and the reason you're here ! We're going to create our first graph, ready? Let's go!
 
 Click on the "Visualize" button on the left navigation panel and click "Create a visualization".
 
 We want our first graph to be a bar graph that displays motion over time, so choose "Vertical Bar" and your index by clicking on "iot".
 
-Kibana is a great tool for visualizing data in real-time. However, for the purpose of this tutorial and to make things simple, we are working with a static dataset. First thing to do is to select a time period. Click on the "time range" button on the top right corner (by default it's set to "Last 15 minutes").
-Now click on "Absolute" and choose a range in the date picker. Our preloaded data contains entries from February 2nd, 2018 to February 7th, 2018. Pick these dates and then click the "Go" button.
+Kibana is a great tool for visualizing data in real-time. However, for the purpose of this tutorial, and to make things easier, we will be working with a static dataset. The first thing we need to do is select a time period. Click on the "time range" button on the top right corner (by default it's set to "Last 15 minutes").
+Now click on "Absolute" and choose a range in the date picker. Our preloaded data contains entries from February 2nd, 2018 to February 7th, 2018. Select these dates and then click the "Go" button.
 
 ![Kibana-time-range](img/kibana2.png)
 
@@ -218,7 +218,7 @@ Now click on the "Apply change" button![Kibana-apply-button](img/kibana-apply-bu
 
 Save your new chart by clicking on the save button on the top menu, give it a name and validate.
 
-To finish up we will add this super graph to a dashboard.
+To finish up, we will add this awsome graph to a dashboard.
 Click on the "Dashboard" button on the left navigation panel and click "Create a dashboard".
 Like Kibana says: "This dashboard is empty. Let's fill it up!".
 
@@ -226,9 +226,12 @@ Like Kibana says: "This dashboard is empty. Let's fill it up!".
 
 Select the visualization we just created and it will be added to our dashboard! 
 
-There you have it, we now have a dashboard with a beautiful graph showing motion activity over time as captured by our IoT device!
+There you have it, we now have a dashboard with a beautiful graph showing motion activity over time as captured by our multi-sensor IoT device!
 
 Kibana lets you share your dashboard, just copy the URL and send it to your motion detection groupies or add it to your webpage in an iframe.
 
 Feel free to play around with the data to add other wild graphs to the dashboard :-)
+
+
+
 

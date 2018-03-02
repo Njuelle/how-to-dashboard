@@ -238,5 +238,5 @@ Of course you can customize your chart, Data-studio give a large panel of option
 
 ![BigQuery-chart](img/bigquery3.png)
 
-It's just a short example of what we can do with Data-studio and BigQuery. But that demonstrate how we can use the Kuzzle enterprise probes system to easily dump datas to another data warehouse in an asynchrone way without interfere with a production stack.
+It's just a short example of what we can do with Data-studio and BigQuery. But that demonstrate how we can use the Kuzzle enterprise probes system to easily dump data to another data warehouse in an asynchrone way without interfere with a production stack.
 
