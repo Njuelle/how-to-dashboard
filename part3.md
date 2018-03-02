@@ -2,9 +2,9 @@
 
 ![full-dashboard](img/bq-full-dashboard.png)
 
-Last time we have created a dashboard with Kibana and the probes system showing us detected motion in our office over a lapse of time. This time we will configure Kuzzle with BiqQuery and Data-studio. With the intention of doing a dashboard to monitor and visualize our data with Kuzzle and these tools. As you know Data-studio needs to manage data source and for that we will use BigQuery as data warehouse. 
+Last time in [Visualizing Data with Kuzzle Analytics - part 2] we have created a dashboard with Kibana and the probes system showing us detected motion in our office over a lapse of time. This time we will configure Kuzzle with BiqQuery and Data-studio. With the intention of doing a dashboard to monitor and visualize our data with Kuzzle and these tools. As you know Data-studio needs to manage data source and for that we will use BigQuery as data warehouse. 
 
-We have to add the KDC-bigquery-connector plugin to our stack and for change we will visualize data about light level collected by our IoT sensor.
+We have to add the KDC-bigquery-connector plugin to our stack and for change, we will visualize data about light level collected by our IoT sensor.
 
 ![kdc-schema](img/kdc-schema3.png)
 
@@ -83,9 +83,9 @@ services:
       - xpack.watcher.enabled=false
 ```
 
-If you look at the ```kdc-kuzzle``` service we will see we have added a new volume to mount our second plugin.
+If you look at the ```kdc-kuzzle``` service you will see we have added a new volume to mount our second plugin.
 
-Like i said, this time we want visualize light level in Data-studio so we need to update our configuration files to change our probe system.
+Like I said, this time we want visualize light level in Data-studio so we need to update our configuration files to change our probe system.
 
 Here an example of document sends by our light level sensor :
 
@@ -185,7 +185,7 @@ if you add ```"timestamp":"true"```, the plugin will automatically add the times
     }
 ```
 
-We can now run our stack with docker in a terminal :
+We can now run our two stack with docker in a terminal :
 
 ```
 $ docker-compose up
