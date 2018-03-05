@@ -4,7 +4,7 @@
 
 In a [previous article] we demonstrated how to configure Kuzzle Analytics with the probes plugins.
 Now we will look at how to configure Kibana to make great visualizations with our data.
-Remember, we have two Kuzzle stacks : one for production and another one for collecting data and monitoring events.
+Remember, we have two Kuzzle stacks: one for production and another one for collecting data and monitoring events.
 
 ![Kuzzle KDC schema](img/kdc-schema2.png)
 
@@ -12,7 +12,7 @@ Now we want to connect Kibana to our KDC stack in order to create a dashboard wi
 
 ## 1- Update your Docker Compose file
 
-In Part 1 of this series, we created a Docker Compose file that looks like this :
+In Part 1 of this series, we created a Docker Compose file that looks like this:
 
 ```yaml
 version: '2'
@@ -84,14 +84,14 @@ services:
       - xpack.watcher.enabled=false
 ```
 
-We now want to update the ```kdc-elasticsearch``` service with our custom docker image that contains the data collected from our multi-sensor IoT device :
+We now want to update the ```kdc-elasticsearch``` service with our custom docker image that contains the data collected from our multi-sensor IoT device:
 (on line 60 of our docker-compose.yml file)
 
 ```yaml
     image: kuzzleio/es-tuto-kuzzle-kibana
 ```
 
-ow we can add the Kibana service at the end of the file :
+Now we can add the Kibana service at the end of the file:
 
 ```yaml
   kibana:
@@ -104,7 +104,7 @@ ow we can add the Kibana service at the end of the file :
       - 5601:5601
 ```
 
-If you are a fine observer you may have noticed that we are mounting a volume which contains our own Kibana configuration. Now we need to create this `kibana.yml` file with the following content:
+If you are a good observer you may have noticed that we are mounting a volume which contains our own Kibana configuration. Now we need to create a `kibana.yml` file with the following content:
 
 ```yaml
 server.name: kibana
@@ -117,7 +117,7 @@ Now you can run the Docker Compose file in your favorite terminal:
 ```bash
 $ docker-compose up
 ```
-If all goes well the terminal should display logs for all the services we just configured. To be sure, you can check if kuzzleis working correctly by opening http://localhost:7512?pretty=true in your favorite browser, you should see a list of routes exposed by Kuzzle.
+If all goes well the terminal should display logs for all the services we just configured. To be sure, you can check if kuzzle is working correctly by opening http://localhost:7512?pretty=true in your favorite browser, you should see a list of routes exposed by Kuzzle.
 
 Your stack is up and ready! Now you can open Kibana and create amazing visualizations!
 
@@ -154,7 +154,7 @@ Note that documents sent by our multi-sensor device have a meta field named ```_
 }
 ```
 
-To add it to Kibana, click on "Advanced Settings", find the "metaFields" input, and then click the edit button and add `_kuzzle_info.createdAt`. Don't forget to save your changes !
+To add it to Kibana, click on "Advanced Settings", find the "metaFields" input, and then click the edit button and add `_kuzzle_info.createdAt`. Don't forget to save your changes!
 
 ![Kibana-metafields](img/kibana0.png)
 
@@ -176,7 +176,7 @@ The next step is to add a scripted field in Kibana. We want to visualize activit
 Unfortunately, only number fields can be aggregated so we need to create a scripted field that converts the boolean to a number.
 
 Click on "scripted fields" tab and on the "Add Scripted Field" button. Give your new field a name, `detected motions` seems nice.
-Kibana uses Painless script -that sounds good to my ears. Go to the "Script" textarea and type :
+Kibana uses Painless script -that sounds good to my ears-. Go to the "Script" textarea and type:
 
 ```
 doc['state.motion'].value ? 1 : 0
@@ -187,11 +187,11 @@ You can ignore the other fields.
 
 This will create a new aggregatable field for each document in our index that returns a 1 or 0 depending on the `state.motion` boolean value.
 
-Save the new scripted field. We just completed the Kibana configuration !
+Save the new scripted field. We just completed the Kibana configuration!
 
 ## 3- Creating Visualizations and Dashboards
 
-Now to the fun part of this tutorial and the reason you're here ! We're going to create our first graph, ready? Let's go!
+Now to the fun part of this tutorial and the reason you're here! We're going to create our first graph, ready? Let's go!
 
 Click on the "Visualize" button on the left navigation panel and click "Create a visualization".
 
@@ -208,7 +208,7 @@ Now that we have selected the data and timeline, we have to configure the graph.
 ![Kibana-y-axis](img/kibana4.png)
 
 It's time to set up the X-axis, remember we want to display the motion over time, so our X-axis must configured with some kind of timestamp.
-Click on the "X-Axis" button and select "Date Histogram". Kibana automatically selects the date field but we have to choose an interval. Pick an hourly interval in the dropdown menu. Give it a custom label if you want, for exemple "Date".
+Click on the "X-Axis" button and select "Date Histogram". Kibana automatically selects the date field but we have to choose an interval. Pick an hourly interval in the dropdown menu. Give it a custom label if you want, for example "Date".
 
 ![Kibana-x-axis](img/kibana5.png)
 
@@ -231,7 +231,6 @@ There you have it, we now have a dashboard with a beautiful graph showing motion
 Kibana lets you share your dashboard, just copy the URL and send it to your motion detection groupies or add it to your webpage in an iframe.
 
 Feel free to play around with the data to add other wild graphs to the dashboard :-)
-
 
 
 

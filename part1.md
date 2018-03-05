@@ -1,7 +1,7 @@
 # Visualizing Data with Kuzzle Analytics - part 1
 
 
-Having tons of data is awesome but visualizing them and getting them to tell you something meaningful is even cooler. That's why I've decided to write a series of 3 articles on how to build a monitoring dashboard using Kuzzle. In the first article we will describe  how to configure Kuzzle for analytics. In the second article we will deal with how to visualize data using Kibana. Finally, , in the third article we will use Google Data Studio to visualize our data.  
+Having tons of data is awesome but visualizing them and getting them to tell you something meaningful is even cooler. That's why I've decided to write a series of 3 articles on how to build a monitoring dashboard using Kuzzle. In the first article we will describe how to configure Kuzzle for analytics. In the second article we will deal with how to visualize data using Kibana. Finally, in the third article we will use Google Data Studio to visualize our data.  
 
 ![Kuzzle](img/kuzzle.png)
 
@@ -31,7 +31,7 @@ At the end of these 3 tutorials, we will have created a dashboard that shows the
 
 Let's get started. First of all, you will need docker and docker-compose. If you don’t already have it,  you can check these tutorials : [Install Docker](https://docs.docker.com/install/) and [Install Docker Compose](https://docs.docker.com/compose/install/).
 
-Now we need to configure our two Kuzzle stacks and a bunch of plugins so that we can start crunching data  !
+Now we need to configure our two Kuzzle stacks and a bunch of plugins so that we can start crunching data!
 
 Each stack needs to have the kuzzle-enterprise-probes plugin configured. Here’s an overview of our directory structure:
 
@@ -87,9 +87,9 @@ We will also need Elasticsearch to store the data collected from our custom mult
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
 ```
 
-We have now configured the Kuzzle production stack !
+We have now configured the Kuzzle production stack!
 
-Now let’s add the KDC stack to our docker-compose file :
+Now let’s add the KDC stack to our docker-compose file:
 
 ```yaml
   kdc-kuzzle:
@@ -155,7 +155,7 @@ Kuzzle stores data in document collections within an index. Below is an example 
 
 Notice that this document is stored in a collection called `device-state`, in an index called `iot`. The data we are interested in is stored in the `state` object, while metadata such as timestamps are stored in the `_kuzzle_info` document.
 
-At this time, we need to create the first configuration file to tell the kuzzle-enterprise-probe-listener plugin what to collect. Name it ```kuzzlerc``` and add these lines :
+At this time, we need to create the first configuration file to tell the kuzzle-enterprise-probe-listener plugin what to collect. Name it ```kuzzlerc``` and add these lines:
 
 ```json
 {
@@ -183,7 +183,7 @@ At this time, we need to create the first configuration file to tell the kuzzle-
 }
 ```
 
-Now on the KDC stack we need to configure the kuzzle-enterprise-probe to collect the data. Create another configuration file and call it  ```kdcrc``` : 
+Now on the KDC stack we need to configure the kuzzle-enterprise-probe to collect the data. Create another configuration file and call it  ```kdcrc```: 
 
 ```json
 {
@@ -213,7 +213,7 @@ Now on the KDC stack we need to configure the kuzzle-enterprise-probe to collect
 
 There you have it! We have setup both our stacks and ready to dive into analytics with our IoT data.
 
-You can launch your two stacks by running this command in your terminal :
+You can launch your two stacks by running this command in your terminal:
 
 ```
 $ docker-compose up
