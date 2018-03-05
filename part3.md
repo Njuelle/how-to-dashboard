@@ -85,9 +85,9 @@ services:
 
 Note that we have added a new volume to mount our second plugin in the  ```kdc-kuzzle``` service.
 
-As I mentioned, this time we want visualize luminosity in Data Studio so we need to update our configuration file to take this change into account. .
+As I mentioned, this time we want visualize luminosity in Data Studio so we need to update our configuration file to take this change into account.
 
-Here’s example of a document sent by our light sensor :
+Here’s example of a document sent by our light sensor:
 
 ```JSON
 {
@@ -100,7 +100,7 @@ Here’s example of a document sent by our light sensor :
 }
 ```
 
-We will need to modify the ```kuzzlerc``` configuration file to add a probe watcher that can collect the ```state.level``` value from each document that matches the following filter :
+We will need to modify the ```kuzzlerc``` configuration file to add a probe watcher that can collect the ```state.level``` value from each document that matches the following filter:
 
 ```json
 {
@@ -128,7 +128,7 @@ We will need to modify the ```kuzzlerc``` configuration file to add a probe watc
 }
 ```
 
-Now update  the ```kdcrc``` file for the KDC stack configuration :
+Now update the ```kdcrc``` file for the KDC stack configuration:
 
 ```json
 {
@@ -220,7 +220,7 @@ If you add ```"timestamp":"true"``` in the configuration file, the plugin will a
 We can now open the Data Studio console here https://datastudio.google.com/. Choose a blank template to start a new report.
 
 Data Studio will ask you to add a data-source. Choose "CREATE NEW DATA SOURCE" and then click on the "ADD TO REPORT" button. 
-Now choose BigQuery on the list on left side. Find the project we just created and choose the dataset. Finally,choose the table you want add to Data Studio and click the "CONNECT" button on the top right corner.
+Now choose BigQuery on the list on left side. Find the project we just created and choose the dataset. Finally, choose the table you want add to Data Studio and click the "CONNECT" button on the top right corner.
 
 You will see a summary of your table (it's possible to change the type of your fields here). We need to tell to Data Studio what kind of aggregation we want for the ```level``` field. By default it's set to "Sum" but we want an "Average" aggregation, so select this option.
 Also we want the chart to display the level by hours, so choose "Date Hour" as type for the ```timestamp``` field.
@@ -229,17 +229,16 @@ Also we want the chart to display the level by hours, so choose "Date Hour" as t
 
 Click the "ADD TO REPORT" button and validate your choice in the modal window.
 
-It's time to add our first chart to this report ! Click on the time series button on the top side menu ![BigQuery-timeseries-button](img/bigquery-timeseries-button.png). Draw a frame in the blank zone. Data Studio will automatically set the data source, the dimensions and the metric fields.
+It's time to add our first chart to this report! Click on the time series button on the top side menu ![BigQuery-timeseries-button](img/bigquery-timeseries-button.png). Draw a frame in the blank zone. Data Studio will automatically set the data source, the dimensions and the metric fields.
 
 ![BigQuery-config-chart](img/bigquery4.png)
 
-That's all folks! We have our chart representing luminositryl over time, on an hourly basis.
+That's all folks! We have our chart representing luminosity over time, on an hourly basis.
 Of course you can customize your chart, Data Studio offers a large panel of options to render your graph the way you want it.
 
 ![BigQuery-chart](img/bigquery3.png)
 
 This was just a short example of what we can do with Data Studio, BigQuery and Kuzzle. We demonstrated how we can use Kuzzle Analytics to easily transfer data to any data visualization system and generate valuable insights.
-
 
 
 
